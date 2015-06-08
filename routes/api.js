@@ -1,7 +1,7 @@
 ﻿var express = require('express');
 var router = express.Router();
 var pg = require('pg');
-cadenaDeConexion = process.env.DATABASE_URL || 'postgres://postgres:Motherrosario@localhost:5432/dbHallScrum';
+cadenaDeConexion = process.env.DATABASE_URL || 'postgres://postgres:123@localhost:5432/dbHallScrum';
 var oauth=require('../private/middleware');
 
 
@@ -9,7 +9,7 @@ var oauth=require('../private/middleware');
 
 /* GET home page. */
 router.get('/usuario', function (req, res,next) {
-    oauth.ensureAuthenticated(req,res,next);
+    //oauth.ensureAuthenticated(req,res,next);
     var resultado = [];
 
     pg.connect(cadenaDeConexion, function(err, db,done){
@@ -33,13 +33,14 @@ router.get('/usuario', function (req, res,next) {
 
 
 router.post('/usuario', function(req, res,next) {
-    oauth.ensureAuthenticated(req,res,next);
+    //oauth.ensureAuthenticated(req,res,next);
     var resultado = [];
     var resultadoUsuario = [];
     var userInserted;
     
     // Grab data from http request
     var data = {nombre: req.body.nombre, nickname: req.body.nickname, contrasena:req.body.contrasena, apellido:req.body.apellido};
+
     // Get a Postgres db from the connection pool
     pg.connect(cadenaDeConexion, function(err, db, done) {
         // SQL Query > Insert Data
@@ -50,65 +51,34 @@ router.post('/usuario', function(req, res,next) {
             resultado.push(row);
         });
         
-        var user;
         idUser.on('end', function() {
+            var user;
             var toJSONId =JSON.stringify(resultado);
             var toNativeObjectId = JSON.parse(toJSONId);
             for(var i = 0; i < toNativeObjectId.length; i++) {
-                userInserted = toNativeObjectId[i].idusuario;   
+                userInserted = toNativeObjectId[i].idusuario; 
             }
-            console.log(".. primero?");
-            user = JSON.stringify(getUsuario(1));
-            console.log(".. segundo?");
-            
-            //segundo llega aca...
-            // return res.json(getUsuario(userInserted));
-        });
-        
-        
-        idUser.on('end', function() {
-            console.log("llego aca?");
-            console.log(user);
-              
-        });
-        
-    
-        // Handle Errors
-        if(err) {
-          console.log(err);
-        }
 
-    });
-});
+            var selectUsuario = db.query("SELECT * FROM usuario WHERE usuario.idusuario="+userInserted);
 
+            selectUsuario.on('row', function(row) {
+                resultado.push(row);
+            });
 
-function getUsuario(id){
-    //console.log("Llego segundo aca"+id);
-    var resultado = [];
-    pg.connect(cadenaDeConexion, function(err, db, done) {
-        var selectUsuario = db.query("SELECT * FROM usuario WHERE usuario.idusuario="+id);
-        
-        
-        
-        selectUsuario.on('row', function(row) {
-            resultado.push(row);
-           // console.log("llego segundo 1");
-        });
-       
+            selectUsuario.on('end', function() {
+                user = resultado;
+                res.json(resultado["1"]);
+            });
 
-        selectUsuario.on('end', function() {
             db.end();
-            console.log(JSON.stringify(resultado));
-            return JSON.stringify(resultado);
         });
-                                
-        // Handle Errors
+    
         if(err) {
           console.log(err);
-        }
-    });
-}
-    
+      }
+
+  });
+}); 
 
 router.delete('/usuario', function(req, res,next){
     oauth.ensureAuthenticated(req,res,next);
