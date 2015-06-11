@@ -1,7 +1,7 @@
 ﻿var express = require('express');
 var router = express.Router();
 var pg = require('pg');
-cadenaDeConexion = process.env.DATABASE_URL || 'postgres://postgres:123@localhost:5432/dbHallScrum';
+cadenaDeConexion = process.env.DATABASE_URL || 'postgres://postgres:Motherrosario@localhost:5432/dbHallScrum';
 var oauth=require('../private/middleware');
 
 

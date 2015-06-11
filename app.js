@@ -11,6 +11,7 @@ var auth = require('./routes/auth');
 
 //Aca encuentra el recurso 
 var api = require('./routes/api');
+var api_proyect = require('./routes/api_proyect');
 
 var app = express();
 
@@ -31,6 +32,7 @@ app.use('/', routes);
 app.use('/api/v1', api);
 app.use('/users', users);
 app.use('/auth', auth);
+app.use('/api/',api_proyect);
 
 
 // catch 404 and forward to error handler
