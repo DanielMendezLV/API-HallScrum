@@ -1,11 +1,11 @@
-﻿var express = require('express');
+var express = require('express');
 var router = express.Router();
 var pg = require('pg');
-cadenaDeConexion = process.env.DATABASE_URL || 'postgres://postgres:Motherrosario@localhost:5432/dbHallScrum';
+var cadenaDeConexion = process.env.DATABASE_URL || 'postgres://postgres:Motherrosario@localhost:5432/DB_HallScrum';
 var oauth=require('../private/middleware');
 
 
-
+//pone genymotion
 
 /* GET home page. */
 router.get('/usuario', function (req, res,next) {
@@ -13,10 +13,10 @@ router.get('/usuario', function (req, res,next) {
     var resultado = [];
 
     pg.connect(cadenaDeConexion, function(err, db,done){
-        var query = db.query("select * from usuario")
+        var query = db.query("select * from usuario");
 
         query.on('row', function (row) {
-            resultado.push(row)
+            resultado.push(row);
         });
 
         query.on('end', function () {
@@ -25,7 +25,7 @@ router.get('/usuario', function (req, res,next) {
         });
 
         if (err) {
-            console.log(err)
+            console.log(err);
         }
     });
 });
@@ -35,8 +35,43 @@ router.get('/usuario', function (req, res,next) {
 router.post('/usuario', function(req, res,next) {
     //oauth.ensureAuthenticated(req,res,next);
     var resultado = [];
-    var resultadoUsuario = [];
     var userInserted;
+    
+    
+    // Grab data from http request
+    var data = {nombre: req.body.nombre, nickname: req.body.nickname, contrasena:req.body.contrasena, apellido:req.body.apellido,                                  idrol: req.body.idrol};
+
+    // Get a Postgres db from the connection pool
+    pg.connect(cadenaDeConexion, function(err, db, done) {
+        // SQL Query > Insert Data
+        
+        db.query("INSERT INTO Usuario(nombre,apellido,nickname,contrasena,idrol) values ($1,$2,$3,$4,$5); ", [data.nombre,data.nickname,data.contrasena,data.apellido, data.idrol]);
+        
+		var query = db.query("select * from usuario");
+
+        query.on('row', function (row) {
+            resultado.push(row);
+        });
+
+        query.on('end', function () {
+            db.end();
+            return res.json(resultado);
+        });
+
+        if (err) {
+            console.log(err);
+        }
+
+  });
+    
+}); 
+
+
+router.post('/registrar', function(req, res,next) {
+    //oauth.ensureAuthenticated(req,res,next);
+    var resultado = [];
+    var userInserted;
+    
     
     // Grab data from http request
     var data = {nombre: req.body.nombre, nickname: req.body.nickname, contrasena:req.body.contrasena, apellido:req.body.apellido};
@@ -45,40 +80,36 @@ router.post('/usuario', function(req, res,next) {
     pg.connect(cadenaDeConexion, function(err, db, done) {
         // SQL Query > Insert Data
         
-        var idUser = db.query("INSERT INTO Usuario(nombre,apellido, nickname, contrasena) VALUES($1, $2, $3,$4) RETURNING idusuario", [data.nombre, data.apellido,data.nickname, data.contrasena]);
-        // SQL Query > Select Data
-        idUser.on('row', function(row) {
+        db.query("INSERT INTO Usuario(nombre,apellido,nickname,contrasena,idrol) values ($1,$2,$3,$4,$5); ", 
+								[data.nombre,data.apellido,data.nickname,data.contrasena, 2]);
+        
+		var query = db.query("select * from usuario");
+
+        query.on('row', function (row) {
             resultado.push(row);
         });
-        
-        idUser.on('end', function() {
-            var user;
-            var toJSONId =JSON.stringify(resultado);
-            var toNativeObjectId = JSON.parse(toJSONId);
-            for(var i = 0; i < toNativeObjectId.length; i++) {
-                userInserted = toNativeObjectId[i].idusuario; 
-            }
 
-            var selectUsuario = db.query("SELECT * FROM usuario WHERE usuario.idusuario="+userInserted);
-
-            selectUsuario.on('row', function(row) {
-                resultado.push(row);
-            });
-
-            selectUsuario.on('end', function() {
-                user = resultado;
-                res.json(resultado["1"]);
-            });
-
+        query.on('end', function () {
             db.end();
+            return res.json(resultado);
         });
-    
-        if(err) {
-          console.log(err);
-      }
+
+        if (err) {
+            console.log(err);
+        }
 
   });
+    
 }); 
+
+
+
+
+
+
+
+
+
 
 router.delete('/usuario', function(req, res,next){
     oauth.ensureAuthenticated(req,res,next);

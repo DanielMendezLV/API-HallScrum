@@ -8,5 +8,3 @@ router.get('/index', function(req, res, next) {
     res.send('Token generado: '+services.createToken({_id:"android"})); 
 });
 module.exports = router;
-
-

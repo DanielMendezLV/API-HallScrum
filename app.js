@@ -9,9 +9,13 @@ var routes = require('./routes/index');
 var users = require('./routes/users');
 var auth = require('./routes/auth');
 
+
 //Aca encuentra el recurso 
 var api = require('./routes/api');
 var api_proyect = require('./routes/api_proyect');
+var api_meta = require('./routes/api_meta');
+var api_equipo = require('./routes/api_equipo');
+var api_equipo_alt = require('./routes/api_equipo_alternative');
 
 var app = express();
 
@@ -33,6 +37,9 @@ app.use('/api/v1', api);
 app.use('/users', users);
 app.use('/auth', auth);
 app.use('/api/',api_proyect);
+app.use('/api/',api_meta);
+app.use('/api/',api_equipo_alt);
+app.use('/api/',api_equipo);
 
 
 // catch 404 and forward to error handler
