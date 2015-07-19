@@ -19,9 +19,6 @@ Script:
     
 
 */
-
-
-
 CREATE TABLE Rol(
 	idRol SERIAL,
 	nombre varchar(255),
@@ -154,6 +151,25 @@ CREATE TRIGGER triger_add_key_equipo
 	FOR EACH ROW 
 	EXECUTE PROCEDURE agregar_clave();
 
+
+
+
+CREATE OR REPLACE FUNCTION agregar_fecha_proyecto() RETURNS TRIGGER AS $BODY$
+BEGIN 
+	NEW.fechaCreacion := CURRENT_DATE;
+	RETURN NEW;
+END
+$BODY$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER triger_add_fecha_proyecto
+	BEFORE INSERT OR UPDATE ON Proyecto
+	FOR EACH ROW 
+	EXECUTE PROCEDURE agregar_fecha_proyecto();
+
+
+
+
 	
 /*Insertando datos en Rol */
 INSERT INTO Rol(nombre) VALUES ('Admin');
@@ -175,10 +191,10 @@ INSERT INTO Usuario_Equipo(idusuario,idequipo,idrol,status) VALUES(3,2, 1,true);
 INSERT INTO Usuario_Equipo(idusuario,idequipo,idrol,status) VALUES(2,2, 1,true);
 INSERT INTO Usuario_Equipo(idusuario,idequipo,idrol,status) VALUES(4,2, 2,false);
 
-
 /*Insertando datos de Proyecto */
-INSERT INTO Proyecto(nombre, fechacreacion,idequipo) VALUES('Hallscrum',CURRENT_DATE, 2);
-INSERT INTO Proyecto(nombre, fechacreacion,idequipo) VALUES('PaginaWebEstatica',CURRENT_DATE,2);
+INSERT INTO Proyecto(nombre,idequipo) VALUES('Hallscrum', 2);
+INSERT INTO Proyecto(nombre,idequipo) VALUES('PaginaWebEstatica',2);
+
 
 /*Insertando datos de Fase */
 INSERT INTO Fase(nombre,fechainicio,fechafinalizacion,idproyecto) VALUES('Login Android', CURRENT_DATE,CURRENT_DATE,1);
