@@ -19,6 +19,7 @@ Script:
     
 
 */
+
 CREATE TABLE Rol(
 	idRol SERIAL,
 	nombre varchar(255),
@@ -170,7 +171,23 @@ CREATE TRIGGER triger_add_fecha_proyecto
 
 
 
+
+CREATE OR REPLACE FUNCTION agregar_fechas_fase() RETURNS TRIGGER AS $BODY$
+BEGIN 
+	NEW.fechainicio := CURRENT_DATE;
+    NEW.fechafinalizacion:= CURRENT_DATE;
+	RETURN NEW;
+END
+$BODY$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER triger_add_fecha_fase
+	BEFORE INSERT OR UPDATE ON Fase
+	FOR EACH ROW 
+	EXECUTE PROCEDURE agregar_fechas_fase();
+
 	
+    
 /*Insertando datos en Rol */
 INSERT INTO Rol(nombre) VALUES ('Admin');
 INSERT INTO Rol(nombre) VALUES ('Usuario');
@@ -197,8 +214,8 @@ INSERT INTO Proyecto(nombre,idequipo) VALUES('PaginaWebEstatica',2);
 
 
 /*Insertando datos de Fase */
-INSERT INTO Fase(nombre,fechainicio,fechafinalizacion,idproyecto) VALUES('Login Android', CURRENT_DATE,CURRENT_DATE,1);
-INSERT INTO Fase(nombre,fechainicio,fechafinalizacion,idproyecto) VALUES('Web Service',CURRENT_DATE,CURRENT_DATE,2);
+INSERT INTO Fase(nombre,idproyecto) VALUES('Login Android',1);
+INSERT INTO Fase(nombre,idproyecto) VALUES('Web Service',2);
 
 /*Insertando datos de Meta */
 INSERT INTO Meta(descripcion,estado,idfase) VALUES('Conectar con NodeJS',false,1);
@@ -211,8 +228,6 @@ INSERT INTO Reunion(fecha,hora,idequipo) VALUES(CURRENT_DATE,'08:00 pm', 2);
 /*Insertando datos de Mensaje */
 INSERT INTO Mensaje(idreunion,texto) VALUES(1, 'Arregla la bd');
 INSERT INTO Mensaje(idreunion,texto) VALUES(2, '..No estoy en contra');
-
-
 
 	
 select * from Rol;

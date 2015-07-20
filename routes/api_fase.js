@@ -1,20 +1,23 @@
 var express = require('express');
 var router = express.Router();
 var pg = require('pg');
-cadenaDeConexion = process.env.DATABASE_URL || 'postgres://postgres:Motherrosario@localhost:5432/DB_HallScrum';
+var cadenaDeConexion = process.env.DATABASE_URL || 'postgres://postgres:Motherrosario@localhost:5432/DB_HallScrum';
 var oauth=require('../private/middleware');
 
 
 
 
 /* GET home page. */
-router.post('/meta', function (req, res,next) {
+router.post('/fase', function (req, res,next) {
     //oauth.ensureAuthenticated(req,res,next);
+    var data = {idproyecto: req.body.idproyecto};
     var resultado = [];
-    var data = {idfase: req.body.idfase};
-
+    // data = {nombre: req.body.nombre};
+    //console.log(req.body.idproyecto);
+   // console.log(datas.nombre);
+    
     pg.connect(cadenaDeConexion, function(err, db,done){
-        var query = db.query("select * from Meta WHERE idfase=$1",[data.idfase]);
+        var query = db.query("select * from fase WHERE idproyecto = $1",[data.idproyecto]);
 
         query.on('row', function (row) {
             resultado.push(row)
@@ -33,13 +36,15 @@ router.post('/meta', function (req, res,next) {
 
 
 
-router.post('/meta_insert', function (req, res,next) {
+router.post('/fase_insert', function (req, res,next) {
     //oauth.ensureAuthenticated(req,res,next);
+    var data = {idproyecto: req.body.idproyecto, nombre:req.body.nombre};
+    console.log(data.idproyecto);
+    console.log(data.nombre);
     var resultado = [];
-    var data = {idfase: req.body.idfase, descripcion:req.body.nombre};
-
+  
     pg.connect(cadenaDeConexion, function(err, db,done){
-        var query = db.query("insert into meta(descripcion, estado, idfase) VALUES($1,$2,$3)" ,[data.descripcion, false, data.idfase]);
+        var query = db.query("INSERT INTO fase(nombre, idproyecto) VALUES($1,$2)",[data.nombre, data.idproyecto]);
 
         query.on('row', function (row) {
             resultado.push(row)
@@ -47,7 +52,7 @@ router.post('/meta_insert', function (req, res,next) {
 
         query.on('end', function () {
             db.end();
-            return res.json([{"transaccion": "OK"}]);
+             return res.json([{"transaccion": "OK"}]);
         });
 
         if (err) {
@@ -55,6 +60,5 @@ router.post('/meta_insert', function (req, res,next) {
         }
     });
 });
-
 
 module.exports = router;

@@ -16,7 +16,7 @@ var api_proyect = require('./routes/api_proyect');
 var api_meta = require('./routes/api_meta');
 var api_equipo = require('./routes/api_equipo');
 var api_equipo_alt = require('./routes/api_equipo_alternative');
-
+var api_fase = require('./routes/api_fase');
 var app = express();
 
 // view engine setup
@@ -40,6 +40,7 @@ app.use('/api/',api_proyect);
 app.use('/api/',api_meta);
 app.use('/api/',api_equipo_alt);
 app.use('/api/',api_equipo);
+app.use('/api/',api_fase);
 
 
 // catch 404 and forward to error handler
