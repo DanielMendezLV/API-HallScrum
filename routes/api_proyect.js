@@ -59,4 +59,37 @@ router.post('/proyect', function (req, res,next) {
 
 
 
+
+router.post('/proyect_del', function(req, res,next){
+    //oauth.ensureAuthenticated(req,res,next);
+    var resultado=[];
+    var data={idproyecto: req.body.idproyecto};
+    console.log(data.idproyecto);
+    
+    pg.connect(cadenaDeConexion, function(err, db, done) {
+        // body...
+        var query = db.query("DELETE FROM proyecto WHERE idproyecto=$1", [data.idproyecto]);
+    
+          // Stream results back one row at a time
+        query.on('row', function(row) {
+            resultado.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            db.end();
+            return res.json([{"transaccion": "OK"}]);
+        });
+
+        // Handle Errors
+        if(err) {
+          console.log(err);
+        }
+
+    });
+
+});
+
+
+
 module.exports = router;

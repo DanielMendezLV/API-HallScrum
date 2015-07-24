@@ -61,4 +61,38 @@ router.post('/fase_insert', function (req, res,next) {
     });
 });
 
+
+
+
+router.post('/fase_del', function(req, res,next){
+    //oauth.ensureAuthenticated(req,res,next);
+    var resultado=[];
+    var data={idfase: req.body.idfase};
+    console.log(data.idfase);
+    
+    pg.connect(cadenaDeConexion, function(err, db, done) {
+        // body...
+        var query = db.query("DELETE FROM fase WHERE idfase=$1", [data.idfase]);
+    
+          // Stream results back one row at a time
+        query.on('row', function(row) {
+            resultado.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            db.end();
+            return res.json([{"transaccion": "OK"}]);
+        });
+
+        // Handle Errors
+        if(err) {
+          console.log(err);
+        }
+
+    });
+
+});
+
+
 module.exports = router;

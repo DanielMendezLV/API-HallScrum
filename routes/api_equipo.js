@@ -58,8 +58,32 @@ router.post('/equipo_alternative', function (req, res,next) {
 });
 
 
+router.post('/equipo_del', function (req, res,next) {
+    //oauth.ensureAuthenticated(req,res,next);
+    var resultado = [];
+    var data={idequipo: req.body.idequipo};
+    console.log(data.idequipo);
+    pg.connect(cadenaDeConexion, function(err, db,done){
+        
+        var query = db.query("DELETE FROM equipo WHERE idequipo=$1", [data.idequipo]);
+    
+          // Stream results back one row at a time
+        query.on('row', function(row) {
+            resultado.push(row);
+        });
 
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            db.end();
+            return res.json([{"transaccion": "OK"}]);
+        });
+        
 
+        if (err) {
+            console.log(err)
+        }
+    });
+});
 
 
 router.post('/equipo', function(req, res,next) {

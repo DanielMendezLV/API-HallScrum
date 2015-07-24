@@ -1,7 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var pg = require('pg');
-cadenaDeConexion = process.env.DATABASE_URL || 'postgres://postgres:Motherrosario@localhost:5432/DB_HallScrum';
+var cadenaDeConexion = process.env.DATABASE_URL || 'postgres://postgres:Motherrosario@localhost:5432/DB_HallScrum';
 var oauth=require('../private/middleware');
 
 
@@ -55,6 +55,39 @@ router.post('/meta_insert', function (req, res,next) {
         }
     });
 });
+
+
+
+router.post('/meta_del', function(req, res,next){
+    //oauth.ensureAuthenticated(req,res,next);
+    var resultado=[];
+    var data={idmeta: req.body.idmeta};
+    console.log(data.idmeta);
+    
+    pg.connect(cadenaDeConexion, function(err, db, done) {
+        // body...
+        var query = db.query("DELETE FROM meta WHERE idmeta=$1", [data.idmeta]);
+    
+          // Stream results back one row at a time
+        query.on('row', function(row) {
+            resultado.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            db.end();
+            return res.json([{"transaccion": "OK"}]);
+        });
+
+        // Handle Errors
+        if(err) {
+          console.log(err);
+        }
+
+    });
+
+});
+
 
 
 module.exports = router;
