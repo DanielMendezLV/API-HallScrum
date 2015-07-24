@@ -1,10 +1,8 @@
 ﻿/*Nombre general de la base de datos, tomar en cuenta para las conecciones de todos:
 DB_HallScrum
-
 Script:
 */
 /*
-
     drop table  Mensaje;
     drop table Reunion;
     drop table Meta;
@@ -17,26 +15,23 @@ Script:
     drop function agregar_clave();
     drop trigger triger_add_key_equipo on Equipo; 
     
-
 */
 
 CREATE TABLE Rol(
-	idRol SERIAL,
-	nombre varchar(255),
-	CONSTRAINT Rol_pk PRIMARY KEY (idRol)
+	idRol SERIAL PRIMARY KEY,
+	nombre varchar(255) NOT NULL
 ) WITH (
   OIDS=FALSE
 );
 
 
 CREATE TABLE Usuario (
-	idUsuario SERIAL,
+	idUsuario SERIAL PRIMARY KEY,
 	nombre varchar(255),
 	apellido varchar(255),
 	nickname varchar(255),
 	contrasena varchar(255),
-	idRol integer NOT NULL,
-	CONSTRAINT Usuario_pk PRIMARY KEY (idUsuario)
+	idRol integer NOT NULL REFERENCES Rol(idRol) match simple on update cascade on delete no action
 ) WITH (
   OIDS=FALSE
 );
@@ -44,21 +39,20 @@ CREATE TABLE Usuario (
 
 
 CREATE TABLE Equipo(
-	idEquipo SERIAL,
+	idEquipo SERIAL PRIMARY KEY,
 	nombre varchar(255),
-	myKey varchar(255),
-	CONSTRAINT Equipo_pk PRIMARY KEY (idEquipo)
+	myKey varchar(255)
 ) WITH (
   OIDS=FALSE
 );
 
 
 CREATE TABLE Usuario_Equipo(
-	idUsuario integer NOT NULL,
-	idEquipo integer NOT NULL,
-	idRol integer NOT NULL,
+	idUsuario integer NOT NULL REFERENCES Usuario(idUsuario) match simple on update cascade on delete cascade,
+	idEquipo integer NOT NULL REFERENCES Equipo(idEquipo) match simple on update cascade on delete cascade,
+	idRol integer NOT NULL REFERENCES Rol(idRol) match simple on update cascade on delete cascade,
 	status boolean NOT NULL,
-	CONSTRAINT Usuario_Equipo_pk PRIMARY KEY (idUsuario,idEquipo)
+	PRIMARY KEY(idUsuario, idEquipo)
 ) WITH (
   OIDS=FALSE
 );
@@ -67,11 +61,10 @@ CREATE TABLE Usuario_Equipo(
 
 
 CREATE TABLE Proyecto(
-	idProyecto SERIAL,
+	idProyecto SERIAL PRIMARY KEY,
 	nombre varchar(255),
 	fechaCreacion DATE,
-	idEquipo integer,
-	CONSTRAINT Proyecto_pk PRIMARY KEY (idProyecto)
+	idEquipo integer NOT NULL REFERENCES Equipo(idEquipo) match simple on update cascade on delete cascade
 ) WITH (
   OIDS=FALSE
 );
@@ -79,12 +72,11 @@ CREATE TABLE Proyecto(
 
 
 CREATE TABLE Fase (
-	idFase SERIAL,
+	idFase SERIAL PRIMARY KEY,
 	nombre varchar(255),
 	fechaInicio DATE,
 	fechaFinalizacion DATE,
-	idProyecto integer,
-	CONSTRAINT Fase_pk PRIMARY KEY (idFase)
+	idProyecto integer NOT NULL REFERENCES Proyecto(idProyecto) match simple on update cascade on delete cascade
 ) WITH (
   OIDS=FALSE
 );
@@ -92,11 +84,10 @@ CREATE TABLE Fase (
 
 
 CREATE TABLE Meta (
-	idMeta SERIAL,
+	idMeta SERIAL PRIMARY KEY,
 	descripcion varchar(255),
 	estado BOOLEAN,
-	idFase integer,
-	CONSTRAINT Meta_pk PRIMARY KEY (idMeta)
+	idFase integer NOT NULL REFERENCES Fase(idFase) match simple on update cascade on delete cascade
 ) WITH (
   OIDS=FALSE
 );
@@ -105,11 +96,10 @@ CREATE TABLE Meta (
 
 
 CREATE TABLE Reunion (
-	idReunion SERIAL,
+	idReunion SERIAL PRIMARY KEY,
 	fecha DATE,
 	hora varchar(15),
-	idEquipo integer NOT NULL,
-	CONSTRAINT Reunion_pk PRIMARY KEY (idReunion)
+	idEquipo integer NOT NULL REFERENCES Equipo(idEquipo) match simple on update cascade on delete cascade
 ) WITH (
   OIDS=FALSE
 );
@@ -117,27 +107,12 @@ CREATE TABLE Reunion (
 
 
 CREATE TABLE Mensaje(
-	idMensaje SERIAL,
-	idReunion integer,
-	texto varchar(255),
-	CONSTRAINT Mensaje_pk PRIMARY KEY (idMensaje)
+	idMensaje SERIAL PRIMARY KEY,
+	idReunion integer REFERENCES Reunion(idReunion) match simple on update cascade on delete cascade,
+	texto varchar(255)
 ) WITH (
   OIDS=FALSE
 );
-
-
-
-/* LLaves foraneas */
-ALTER TABLE Usuario ADD CONSTRAINT Usuario_fk0 FOREIGN KEY (idRol) REFERENCES Rol(idRol);
-ALTER TABLE Usuario_Equipo ADD CONSTRAINT Usuario_Equipo_fk0 FOREIGN KEY (idUsuario) REFERENCES Usuario(idUsuario);
-ALTER TABLE Usuario_Equipo ADD CONSTRAINT Usuario_Equipo_fk1 FOREIGN KEY (idEquipo) REFERENCES Equipo(idEquipo);
-ALTER TABLE Usuario_Equipo ADD CONSTRAINT Usuario_Equipo_fk2 FOREIGN KEY (idRol) REFERENCES Rol(idRol);
-ALTER TABLE Proyecto ADD CONSTRAINT Proyecto_fk0 FOREIGN KEY (idEquipo) REFERENCES Equipo(idEquipo);
-ALTER TABLE Fase ADD CONSTRAINT Fase_fk0 FOREIGN KEY (idProyecto) REFERENCES Proyecto(idProyecto);
-ALTER TABLE Meta ADD CONSTRAINT Meta_fk0 FOREIGN KEY (idFase) REFERENCES Fase(idFase);
-ALTER TABLE Reunion ADD CONSTRAINT Reunion_fk1 FOREIGN KEY (idEquipo) REFERENCES Equipo(idEquipo);
-ALTER TABLE Mensaje ADD CONSTRAINT Mensaje_fk0 FOREIGN KEY (idReunion) REFERENCES Reunion(idReunion);
-
 
 CREATE OR REPLACE FUNCTION agregar_clave() RETURNS TRIGGER AS $BODY$
 BEGIN 
@@ -239,4 +214,3 @@ select * from Fase;
 select * from Meta;
 select * from Reunion;
 select * from Mensaje
-
