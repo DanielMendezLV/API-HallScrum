@@ -58,6 +58,37 @@ router.post('/equipo_alternative', function (req, res,next) {
 });
 
 
+
+router.put('/equipo', function (req, res,next) {
+    //oauth.ensureAuthenticated(req,res,next);
+    var resultado = [];
+    var data={idequipo: req.body.idequipo, nombre: req.body.nombre};
+    //console.log(data.idequipo);
+    //console.log(data.nombre);
+     pg.connect(cadenaDeConexion, function(err, db,done){
+        
+        var query = db.query("UPDATE equipo SET nombre=$1 WHERE idequipo=$2", [data.nombre, data.idequipo]);
+    
+          // Stream results back one row at a time
+        query.on('row', function(row) {
+            resultado.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            db.end();
+            return res.json([{"transaccion": "OK"}]);
+        });
+        
+
+        if (err) {
+            console.log(err)
+        }
+    });
+});
+
+
+
 router.post('/equipo_del', function (req, res,next) {
     //oauth.ensureAuthenticated(req,res,next);
     var resultado = [];

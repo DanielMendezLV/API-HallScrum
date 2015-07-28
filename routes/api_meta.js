@@ -90,4 +90,34 @@ router.post('/meta_del', function(req, res,next){
 
 
 
+
+router.put('/meta', function (req, res,next) {
+    //oauth.ensureAuthenticated(req,res,next);
+    var resultado = [];
+    var data={idmeta: req.body.idmeta, nombre: req.body.nombre};
+    console.log(data.idmeta);
+    //console.log(data.nombre);
+     pg.connect(cadenaDeConexion, function(err, db,done){
+        
+        var query = db.query("UPDATE meta SET descripcion=$1 WHERE idmeta=$2", [data.nombre, data.idmeta]);
+        // Stream results back one row at a time
+        query.on('row', function(row) {
+            resultado.push(row);
+        });
+
+        // After all data is returned, close connection and return results
+        query.on('end', function() {
+            db.end();
+            return res.json([{"transaccion": "OK"}]);
+        });
+        
+
+        if (err) {
+            console.log(err)
+        }
+    });
+});
+
+
+
 module.exports = router;
